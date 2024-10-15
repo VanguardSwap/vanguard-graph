@@ -1,0 +1,17 @@
+{
+  "name": "test-custom-network",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "start": "graph codegen & graph build",
+    "create-local": "graph create generated/ClassicFactory --node http://127.0.0.1:8020",
+    "deploy-local": "graph deploy --ipfs http://localhost:5001 --node http://localhost:8020 generated/ClassicFactory subgraph.yaml",
+    "test": "graph test"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.86.0",
+    "@graphprotocol/graph-ts": "0.32.0"
+  },
+  "devDependencies": { "matchstick-as": "0.5.0" }
+}
