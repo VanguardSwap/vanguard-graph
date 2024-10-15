@@ -1,0 +1,8 @@
+{
+  "mainnet": {
+    "VanguardClassicPoolFactory": {
+      "address": "0x16D6D5627a6d4da55cE81b624Ad31e42E163B9c4",
+      "startBlock": 1220375
+    }
+  }
+}
