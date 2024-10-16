@@ -1,4 +1,4 @@
-type ClassicFactory @entity {
+type Factory @entity {
   # factory address
   id: ID!
 
@@ -50,11 +50,11 @@ type Token @entity {
   tokenDayData: [TokenDayData!]! @derivedFrom(field: "token")
   poolDayDataBase: [PoolDayData!]! @derivedFrom(field: "token0")
   poolDayDataQuote: [PoolDayData!]! @derivedFrom(field: "token1")
-  poolBase: [ClassicPool!]! @derivedFrom(field: "token0")
-  poolQuote: [ClassicPool!]! @derivedFrom(field: "token1")
+  poolBase: [Pool!]! @derivedFrom(field: "token0")
+  poolQuote: [Pool!]! @derivedFrom(field: "token1")
 }
 
-type ClassicPool @entity {
+type Pool @entity {
   # pool address
   id: ID!
 
@@ -116,7 +116,7 @@ type Mint @entity {
   id: ID!
   transaction: Transaction!
   timestamp: BigInt! # need this to pull recent txns for specific token or pool
-  pool: ClassicPool!
+  pool: Pool!
 
   # populated from the primary Transfer event
   to: Bytes!
@@ -140,7 +140,7 @@ type Burn @entity {
   id: ID!
   transaction: Transaction!
   timestamp: BigInt! # need this to pull recent txns for specific token or pool
-  pool: ClassicPool!
+  pool: Pool!
 
   # populated from the primary Transfer event
   liquidity: BigDecimal!
@@ -167,7 +167,7 @@ type Swap @entity {
   id: ID!
   transaction: Transaction!
   timestamp: BigInt! # need this to pull recent txns for specific token or pool
-  pool: ClassicPool!
+  pool: Pool!
 
   # populated from the Swap event
   sender: Bytes!
@@ -209,7 +209,7 @@ type VanguardDayData @entity {
 type PoolHourData @entity {
   id: ID!
   hourStartUnix: Int! # unix timestamp for start of hour
-  pool: ClassicPool!
+  pool: Pool!
 
   # reserves
   reserve0: BigDecimal!

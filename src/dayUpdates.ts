@@ -2,15 +2,15 @@
 import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 
 import {
-  Bundle, ClassicPool, PoolDayData,
+  Bundle, Pool, PoolDayData,
   PoolHourData, Token, TokenDayData,
-  VanguardDayData, ClassicFactory
+  VanguardDayData, Factory
 } from "../generated/schema";
 
 import { FACTORY_ADDRESS, ONE_BI, ZERO_BD, ZERO_BI } from "./helpers";
 
 export function updateVanguardDayData(event: ethereum.Event): VanguardDayData {
-  let factory = ClassicFactory.load(FACTORY_ADDRESS);
+  let factory = Factory.load(FACTORY_ADDRESS);
   let timestamp = event.block.timestamp.toI32();
   let dayID = timestamp / 86400;
   let dayStartTimestamp = dayID * 86400;
@@ -50,7 +50,7 @@ export function updatePairDayData(event: ethereum.Event): PoolDayData {
     .concat("-")
     .concat(BigInt.fromI32(dayID).toString());
 
-  let pair = ClassicPool.load(event.address.toHexString());
+  let pair = Pool.load(event.address.toHexString());
   if (!pair) return new PoolDayData(dayPairID);
 
   let pairDayData = PoolDayData.load(dayPairID);
@@ -87,7 +87,7 @@ export function updatePairHourData(event: ethereum.Event): PoolHourData {
     .concat("-")
     .concat(BigInt.fromI32(hourIndex).toString());
 
-  let pair = ClassicPool.load(event.address.toHexString());
+  let pair = Pool.load(event.address.toHexString());
   let pairHourData = PoolHourData.load(hourPairID);
   if (pairHourData === null) {
     pairHourData = new PoolHourData(hourPairID);

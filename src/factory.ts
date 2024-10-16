@@ -2,8 +2,8 @@
 import { log } from "@graphprotocol/graph-ts";
 
 import {
-  Bundle, ClassicPool,
-  Token, ClassicFactory,
+  Bundle, Pool,
+  Token, Factory,
 } from "../generated/schema";
 
 import {
@@ -17,9 +17,9 @@ import { ClassicPool as PoolTemplate } from "../generated/templates";
 
 export function handlePoolCreated(event: PoolCreated): void {
   // load factory (create if first exchange)
-  let factory = ClassicFactory.load(event.address.toHexString());
+  let factory = Factory.load(event.address.toHexString());
   if (factory === null) {
-    factory = new ClassicFactory(event.address.toHexString());
+    factory = new Factory(event.address.toHexString());
     factory.poolCount = 0;
     factory.totalVolumeETH = ZERO_BD;
     factory.totalLiquidityETH = ZERO_BD;
@@ -89,7 +89,7 @@ export function handlePoolCreated(event: PoolCreated): void {
     token1.txCount = ZERO_BI;
   }
 
-  let pair = new ClassicPool(event.params.pool.toHexString()) as ClassicPool;
+  let pair = new Pool(event.params.pool.toHexString()) as Pool;
   pair.token0 = token0.id;
   pair.token1 = token1.id;
   pair.liquidityProviderCount = ZERO_BI;

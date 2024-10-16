@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts/index";
-import { Bundle, ClassicPool, Token } from "../generated/schema";
+import { Bundle, Pool, Token } from "../generated/schema";
 
 import {
   ADDRESS_ZERO, factoryContract,
@@ -14,9 +14,9 @@ const USDT_WETH_PAIR = "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"; // created 
 
 export function getEthPriceInUSD(): BigDecimal {
   // fetch eth prices for each stablecoin
-  let daiPair = ClassicPool.load(DAI_WETH_PAIR); // dai is token0
-  let usdcPair = ClassicPool.load(USDC_WETH_PAIR); // usdc is token0
-  let usdtPair = ClassicPool.load(USDT_WETH_PAIR); // usdt is token1
+  let daiPair = Pool.load(DAI_WETH_PAIR); // dai is token0
+  let usdcPair = Pool.load(USDC_WETH_PAIR); // usdc is token0
+  let usdtPair = Pool.load(USDT_WETH_PAIR); // usdt is token1
 
   // all 3 have been created
   if (daiPair !== null && usdcPair !== null && usdtPair !== null) {
@@ -95,7 +95,7 @@ export function findEthPerToken(token: Token): BigDecimal {
       Address.fromString(WHITELIST[i])
     );
     if (pairAddress.toHexString() != ADDRESS_ZERO) {
-      let pair = ClassicPool.load(pairAddress.toHexString());
+      let pair = Pool.load(pairAddress.toHexString());
       if (pair === null) {
         continue;
       }
@@ -135,7 +135,7 @@ export function getTrackedVolumeUSD(
   token0: Token,
   tokenAmount1: BigDecimal,
   token1: Token,
-  pair: ClassicPool
+  pair: Pool
 ): BigDecimal {
   let bundle = Bundle.load('1')
   let bundleEthPrice = ZERO_BD;

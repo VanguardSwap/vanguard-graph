@@ -3,9 +3,9 @@ import { BigDecimal, BigInt, store } from "@graphprotocol/graph-ts";
 
 import {
   Bundle, Burn as BurnEvent,
-  Mint as MintEvent, ClassicPool,
+  Mint as MintEvent, Pool,
   Swap as SwapEvent, Token,
-  Transaction, ClassicFactory
+  Transaction, Factory
 } from "../generated/schema";
 
 import {
@@ -53,7 +53,7 @@ export function handleTransfer(event: Transfer): void {
   createUser(to);
 
   // get pair and load contract
-  let pair = ClassicPool.load(event.address.toHexString());
+  let pair = Pool.load(event.address.toHexString());
   if (!pair) return;
 
   // liquidity token amount being transferred
@@ -230,14 +230,14 @@ export function handleTransfer(event: Transfer): void {
 }
 
 export function handleSync(event: Sync): void {
-  let pair = ClassicPool.load(event.address.toHex());
+  let pair = Pool.load(event.address.toHex());
   if (!pair) return;
 
   let token0 = Token.load(pair.token0);
   let token1 = Token.load(pair.token1);
   if (!token0 || !token1) return;
 
-  let factory = ClassicFactory.load(FACTORY_ADDRESS);
+  let factory = Factory.load(FACTORY_ADDRESS);
 
   // reset factory liquidity by subtracting only tracked liquidity
   if (factory) {
@@ -321,10 +321,10 @@ export function handleMint(event: Mint): void {
 
   if (!mint) return;
 
-  let pair = ClassicPool.load(event.address.toHex());
+  let pair = Pool.load(event.address.toHex());
   if (!pair) return;
 
-  let factory = ClassicFactory.load(FACTORY_ADDRESS);
+  let factory = Factory.load(FACTORY_ADDRESS);
 
   let token0 = Token.load(pair.token0);
   let token1 = Token.load(pair.token1);
@@ -396,8 +396,8 @@ export function handleBurn(event: Burn): void {
 
   if (!burn) return;
 
-  let pair = ClassicPool.load(event.address.toHex());
-  let factory = ClassicFactory.load(FACTORY_ADDRESS);
+  let pair = Pool.load(event.address.toHex());
+  let factory = Factory.load(FACTORY_ADDRESS);
   if (!pair || !factory) return;
 
   //update token info
@@ -459,7 +459,7 @@ export function handleBurn(event: Burn): void {
 }
 
 export function handleSwap(event: Swap): void {
-  let pair = ClassicPool.load(event.address.toHexString());
+  let pair = Pool.load(event.address.toHexString());
   if (!pair) return;
 
   let token0 = Token.load(pair.token0);
@@ -510,7 +510,7 @@ export function handleSwap(event: Swap): void {
     token0 as Token,
     amount1Total,
     token1 as Token,
-    pair as ClassicPool
+    pair as Pool
   );
 
   let trackedAmountETH: BigDecimal;
@@ -543,7 +543,7 @@ export function handleSwap(event: Swap): void {
   pair.save();
 
   // update global values, only used tracked amounts for volume
-  let factory = ClassicFactory.load(FACTORY_ADDRESS);
+  let factory = Factory.load(FACTORY_ADDRESS);
   if (!factory) return;
 
   factory.totalVolumeUSD = factory.totalVolumeUSD.plus(trackedAmountUSD);
