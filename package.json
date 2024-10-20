@@ -7,8 +7,8 @@
     "start": "graph codegen & graph build",
     "create-local": "graph create generated/ClassicFactory --node http://127.0.0.1:8020",
     "deploy-local": "graph deploy --ipfs http://localhost:5001 --node http://localhost:8020 generated/ClassicFactory subgraph.yaml",
-    "create-aws": "graph create generated/ClassicFactory --node http://16.171.24.88:8020",
-    "deploy-aws": "graph deploy --ipfs http://16.171.24.88:5001 --node http://16.171.24.88:8020 generated/ClassicFactory subgraph.yaml",
+    "create-aws": "graph create generated/ClassicFactory --node http://93.115.16.123:8020",
+    "deploy-aws": "graph deploy --ipfs http://93.115.16.123:5001 --node http://93.115.16.123:8020 generated/ClassicFactory subgraph.yaml",
     "test": "graph test"
   },
   "dependencies": {
