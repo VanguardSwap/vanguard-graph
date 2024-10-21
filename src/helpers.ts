@@ -4,7 +4,7 @@ import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { ERC20 } from "../generated/ClassicFactory/ERC20";
 import { ERC20NameBytes } from "../generated/ClassicFactory/ERC20NameBytes";
 import { ERC20SymbolBytes } from "../generated/ClassicFactory/ERC20SymbolBytes";
-import { User } from "../generated/schema";
+import { User, UserPosition } from "../generated/schema";
 import { ClassicFactory as FactoryContract } from "../generated/templates/ClassicPool/ClassicFactory";
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
@@ -24,6 +24,40 @@ export let factoryContract = FactoryContract.bind(
 export let UNTRACKED_PAIRS: string[] = [
   "0x9ea3b5b4ec044b70375236a281986106457b20ef",
 ];
+
+export function updateUserPosition(
+  user: Address,
+  pool: Address,
+  amount0: BigInt,
+  amount1: BigInt,
+  liquidity: BigInt,
+  isMint: boolean
+): void {
+  let userPosition = UserPosition.load(user.toHexString() + "-" + pool.toHexString());
+
+  if (!userPosition) {
+    userPosition = new UserPosition(user.toHexString() + "-" + pool.toHexString());
+    userPosition.user = user;
+    userPosition.pool = pool.toHexString();
+    userPosition.liquidity = ZERO_BD;
+    userPosition.amount0 = ZERO_BI;
+    userPosition.amount1 = ZERO_BI;
+  }
+
+  let newLiquidity = convertTokenToDecimal(liquidity, BI_18);
+
+  if (isMint) {
+    userPosition.liquidity = userPosition.liquidity.plus(newLiquidity);
+    userPosition.amount0 = userPosition.amount0.plus(amount0);
+    userPosition.amount1 = userPosition.amount1.plus(amount1);
+  } else {
+    userPosition.liquidity = userPosition.liquidity.minus(newLiquidity);
+    userPosition.amount0 = userPosition.amount0.minus(amount0);
+    userPosition.amount1 = userPosition.amount1.minus(amount1);
+  }
+
+  userPosition.save();
+}
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
   let bd = BigDecimal.fromString("1");

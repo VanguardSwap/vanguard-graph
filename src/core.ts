@@ -21,7 +21,7 @@ import {
 import {
   ADDRESS_ZERO, BI_18,
   convertTokenToDecimal, createUser,
-  FACTORY_ADDRESS, ONE_BI, ZERO_BD
+  FACTORY_ADDRESS, ONE_BI, updateUserPosition, ZERO_BD
 } from "./helpers";
 
 import {
@@ -377,6 +377,12 @@ export function handleMint(event: Mint): void {
   mint.amountUSD = amountTotalUSD as BigDecimal;
   mint.save();
 
+  updateUserPosition(
+    event.params.to, event.address,
+    event.params.amount0, event.params.amount1,
+    event.params.liquidity, true
+  );
+
   // update day entities
   updatePairDayData(event);
   updatePairHourData(event);
@@ -449,6 +455,12 @@ export function handleBurn(event: Burn): void {
   burn.logIndex = event.logIndex;
   burn.amountUSD = amountTotalUSD as BigDecimal;
   burn.save();
+
+  updateUserPosition(
+    event.params.to, event.address,
+    event.params.amount0, event.params.amount1,
+    event.params.liquidity, false
+  );
 
   // update day entities
   updatePairDayData(event);
