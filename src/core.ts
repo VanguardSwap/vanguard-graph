@@ -230,7 +230,7 @@ export function handleTransfer(event: Transfer): void {
 }
 
 export function handleSync(event: Sync): void {
-  let pair = Pool.load(event.address.toHex());
+  let pair = Pool.load(event.address.toHexString());
   if (!pair) return;
 
   let token0 = Token.load(pair.token0);
@@ -321,7 +321,7 @@ export function handleMint(event: Mint): void {
 
   if (!mint) return;
 
-  let pair = Pool.load(event.address.toHex());
+  let pair = Pool.load(event.address.toHexString());
   if (!pair) return;
 
   let factory = Factory.load(FACTORY_ADDRESS);
@@ -379,7 +379,6 @@ export function handleMint(event: Mint): void {
 
   updateUserPosition(
     event.params.to, event.address,
-    event.params.amount0, event.params.amount1,
     event.params.liquidity, true
   );
 
@@ -402,7 +401,7 @@ export function handleBurn(event: Burn): void {
 
   if (!burn) return;
 
-  let pair = Pool.load(event.address.toHex());
+  let pair = Pool.load(event.address.toHexString());
   let factory = Factory.load(FACTORY_ADDRESS);
   if (!pair || !factory) return;
 
@@ -458,7 +457,6 @@ export function handleBurn(event: Burn): void {
 
   updateUserPosition(
     event.params.to, event.address,
-    event.params.amount0, event.params.amount1,
     event.params.liquidity, false
   );
 

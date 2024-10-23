@@ -58,8 +58,6 @@ type UserPosition @entity {
   id: ID! # user address + pool address
   user: Bytes!
   pool: Pool!
-  amount0: BigInt!
-  amount1: BigInt!
   liquidity: BigDecimal!
 }
 

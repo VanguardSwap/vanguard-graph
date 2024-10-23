@@ -28,8 +28,6 @@ export let UNTRACKED_PAIRS: string[] = [
 export function updateUserPosition(
   user: Address,
   pool: Address,
-  amount0: BigInt,
-  amount1: BigInt,
   liquidity: BigInt,
   isMint: boolean
 ): void {
@@ -40,20 +38,14 @@ export function updateUserPosition(
     userPosition.user = user;
     userPosition.pool = pool.toHexString();
     userPosition.liquidity = ZERO_BD;
-    userPosition.amount0 = ZERO_BI;
-    userPosition.amount1 = ZERO_BI;
   }
 
   let newLiquidity = convertTokenToDecimal(liquidity, BI_18);
 
   if (isMint) {
     userPosition.liquidity = userPosition.liquidity.plus(newLiquidity);
-    userPosition.amount0 = userPosition.amount0.plus(amount0);
-    userPosition.amount1 = userPosition.amount1.plus(amount1);
   } else {
     userPosition.liquidity = userPosition.liquidity.minus(newLiquidity);
-    userPosition.amount0 = userPosition.amount0.minus(amount0);
-    userPosition.amount1 = userPosition.amount1.minus(amount1);
   }
 
   userPosition.save();
