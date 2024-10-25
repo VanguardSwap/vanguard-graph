@@ -1,6 +1,5 @@
 /* eslint-disable prefer-const */
-import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
-
+import { Address, BigDecimal, BigInt, store } from "@graphprotocol/graph-ts";
 import { ERC20 } from "../generated/ClassicFactory/ERC20";
 import { ERC20NameBytes } from "../generated/ClassicFactory/ERC20NameBytes";
 import { ERC20SymbolBytes } from "../generated/ClassicFactory/ERC20SymbolBytes";
@@ -45,7 +44,13 @@ export function updateUserPosition(
   if (isMint) {
     userPosition.liquidity = userPosition.liquidity.plus(newLiquidity);
   } else {
-    userPosition.liquidity = userPosition.liquidity.minus(newLiquidity);
+    newLiquidity = userPosition.liquidity.minus(newLiquidity);
+
+    if (newLiquidity == ZERO_BD) {
+      store.remove("UserPosition", userPosition.id);
+    } else {
+      userPosition.liquidity = newLiquidity;
+    }
   }
 
   userPosition.save();
