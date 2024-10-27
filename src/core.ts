@@ -20,7 +20,7 @@ import {
 
 import {
   ADDRESS_ZERO, BI_18,
-  convertTokenToDecimal, createUser,
+  convertTokenToDecimal, createPortfolioTransaction, createUser,
   FACTORY_ADDRESS, ONE_BI, updateUserPosition, ZERO_BD
 } from "./helpers";
 
@@ -382,6 +382,13 @@ export function handleMint(event: Mint): void {
     event.params.liquidity, true
   );
 
+  createPortfolioTransaction(
+    event.transaction.hash, event.params.to,
+    "Deposit", event.block.timestamp,
+    token0.id, token1.id,
+    token0Amount, token1Amount
+  )
+
   // update day entities
   updatePairDayData(event);
   updatePairHourData(event);
@@ -460,6 +467,13 @@ export function handleBurn(event: Burn): void {
     event.params.liquidity, false
   );
 
+  createPortfolioTransaction(
+    event.transaction.hash, event.params.to,
+    "Withdraw", event.block.timestamp,
+    token0.id, token1.id,
+    token0Amount, token1Amount
+  )
+
   // update day entities
   updatePairDayData(event);
   updatePairHourData(event);
@@ -495,6 +509,16 @@ export function handleSwap(event: Swap): void {
     event.params.amount1Out,
     token1.decimals
   );
+
+  let token0Amount = amount0In == ZERO_BD ? amount1In : amount0In;
+  let token1Amount = amount0Out == ZERO_BD ? amount1Out : amount0Out;
+
+  createPortfolioTransaction(
+    event.transaction.hash, event.params.to,
+    "Swap", event.block.timestamp,
+    token0.id, token1.id,
+    token0Amount, token1Amount
+  )
 
   // totals for volume updates
   let amount0Total = amount0Out.plus(amount0In);

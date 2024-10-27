@@ -1,9 +1,9 @@
 /* eslint-disable prefer-const */
-import { Address, BigDecimal, BigInt, store } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, Bytes, store } from "@graphprotocol/graph-ts";
 import { ERC20 } from "../generated/ClassicFactory/ERC20";
 import { ERC20NameBytes } from "../generated/ClassicFactory/ERC20NameBytes";
 import { ERC20SymbolBytes } from "../generated/ClassicFactory/ERC20SymbolBytes";
-import { User, UserPosition } from "../generated/schema";
+import { PortfolioHistory, User, UserPosition } from "../generated/schema";
 import { ClassicFactory as FactoryContract } from "../generated/templates/ClassicPool/ClassicFactory";
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
@@ -23,6 +23,27 @@ export let factoryContract = FactoryContract.bind(
 export let UNTRACKED_PAIRS: string[] = [
   "0x9ea3b5b4ec044b70375236a281986106457b20ef",
 ];
+
+export function createPortfolioTransaction(
+  tx: Bytes,
+  user: Address,
+  type: string,
+  time: BigInt,
+  token0: string,
+  token1: string,
+  amount0: BigDecimal,
+  amount1: BigDecimal
+): void {
+  let portfolioTransaction = new PortfolioHistory(tx.toHexString());
+  portfolioTransaction.user = user.toHexString();
+  portfolioTransaction.type = type;
+  portfolioTransaction.time = time;
+  portfolioTransaction.token0 = token0;
+  portfolioTransaction.token1 = token1;
+  portfolioTransaction.amount0 = amount0;
+  portfolioTransaction.amount1 = amount1;
+  portfolioTransaction.save();
+}
 
 export function updateUserPosition(
   user: Address,
@@ -44,16 +65,14 @@ export function updateUserPosition(
   if (isMint) {
     userPosition.liquidity = userPosition.liquidity.plus(newLiquidity);
   } else {
-    newLiquidity = userPosition.liquidity.minus(newLiquidity);
-
-    if (newLiquidity == ZERO_BD) {
-      store.remove("UserPosition", userPosition.id);
-    } else {
-      userPosition.liquidity = newLiquidity;
-    }
+    userPosition.liquidity = userPosition.liquidity.minus(newLiquidity);
   }
 
   userPosition.save();
+
+  if (userPosition.liquidity == ZERO_BD) {
+    store.remove("UserPosition", userPosition.id);
+  }
 }
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {

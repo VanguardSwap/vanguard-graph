@@ -61,6 +61,23 @@ type UserPosition @entity {
   liquidity: BigDecimal!
 }
 
+enum TransactionType {
+  Deposit
+  Withdraw
+  Swap
+}
+
+type PortfolioHistory @entity {
+  id: ID!
+  user: User!
+  time: BigInt!
+  type: TransactionType!
+  token0: Token
+  token1: Token
+  amount0: BigDecimal
+  amount1: BigDecimal
+}
+
 type Pool @entity {
   # pool address
   id: ID!
