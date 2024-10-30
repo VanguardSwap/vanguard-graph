@@ -21,7 +21,7 @@ import {
 import {
   ADDRESS_ZERO, BI_18,
   convertTokenToDecimal, createPortfolioTransaction, createUser,
-  FACTORY_ADDRESS, ONE_BI, updateUserPosition, ZERO_BD
+  FACTORY_ADDRESS, increaseUserTxCount, ONE_BI, updateUserPosition, updateUserUSDSwapped, ZERO_BD
 } from "./helpers";
 
 import {
@@ -377,24 +377,28 @@ export function handleMint(event: Mint): void {
   mint.amountUSD = amountTotalUSD as BigDecimal;
   mint.save();
 
+  let user = event.params.to;
+
   updateUserPosition(
-    event.params.to, event.address,
+    user, event.address,
     event.params.liquidity, true
   );
 
   createPortfolioTransaction(
-    event.transaction.hash, event.params.to,
+    event.transaction.hash, user,
     "Deposit", event.block.timestamp,
     token0.id, token1.id,
     token0Amount, token1Amount
   )
 
-  // update day entities
-  updatePairDayData(event);
-  updatePairHourData(event);
-  updateVanguardDayData(event);
-  updateTokenDayData(token0 as Token, event);
-  updateTokenDayData(token1 as Token, event);
+  increaseUserTxCount(user);
+
+  // // update day entities
+  // updatePairDayData(event);
+  // updatePairHourData(event);
+  // updateVanguardDayData(event);
+  // updateTokenDayData(token0 as Token, event);
+  // updateTokenDayData(token1 as Token, event);
 }
 
 export function handleBurn(event: Burn): void {
@@ -462,24 +466,28 @@ export function handleBurn(event: Burn): void {
   burn.amountUSD = amountTotalUSD as BigDecimal;
   burn.save();
 
+  let user = event.params.to;
+
   updateUserPosition(
-    event.params.to, event.address,
+    user, event.address,
     event.params.liquidity, false
   );
 
   createPortfolioTransaction(
-    event.transaction.hash, event.params.to,
+    event.transaction.hash, user,
     "Withdraw", event.block.timestamp,
     token0.id, token1.id,
     token0Amount, token1Amount
   )
 
-  // update day entities
-  updatePairDayData(event);
-  updatePairHourData(event);
-  updateVanguardDayData(event);
-  updateTokenDayData(token0 as Token, event);
-  updateTokenDayData(token1 as Token, event);
+  increaseUserTxCount(user);
+
+  // // update day entities
+  // updatePairDayData(event);
+  // updatePairHourData(event);
+  // updateVanguardDayData(event);
+  // updateTokenDayData(token0 as Token, event);
+  // updateTokenDayData(token1 as Token, event);
 }
 
 export function handleSwap(event: Swap): void {
@@ -513,12 +521,16 @@ export function handleSwap(event: Swap): void {
   let token0Amount = amount0In == ZERO_BD ? amount1In : amount0In;
   let token1Amount = amount0Out == ZERO_BD ? amount1Out : amount0Out;
 
+  let user = event.params.to;
+
   createPortfolioTransaction(
-    event.transaction.hash, event.params.to,
+    event.transaction.hash, user,
     "Swap", event.block.timestamp,
     token0.id, token1.id,
     token0Amount, token1Amount
   )
+
+  increaseUserTxCount(user);
 
   // totals for volume updates
   let amount0Total = amount0Out.plus(amount0In);
@@ -580,6 +592,7 @@ export function handleSwap(event: Swap): void {
   let factory = Factory.load(FACTORY_ADDRESS);
   if (!factory) return;
 
+  updateUserUSDSwapped(user, trackedAmountUSD);
   factory.totalVolumeUSD = factory.totalVolumeUSD.plus(trackedAmountUSD);
   factory.totalVolumeETH = factory.totalVolumeETH.plus(trackedAmountETH);
   factory.untrackedVolumeUSD = factory.untrackedVolumeUSD.plus(derivedAmountUSD);
@@ -618,7 +631,7 @@ export function handleSwap(event: Swap): void {
   swap.amount1In = amount1In;
   swap.amount0Out = amount0Out;
   swap.amount1Out = amount1Out;
-  swap.to = event.params.to;
+  swap.to = user;
   swap.from = event.transaction.from;
   swap.logIndex = event.logIndex;
   // use the tracked amount if we have it
@@ -633,48 +646,48 @@ export function handleSwap(event: Swap): void {
   transaction.swaps = swaps;
   transaction.save();
 
-  // update day entities
-  let pairDayData = updatePairDayData(event);
-  let pairHourData = updatePairHourData(event);
-  let vanguardDayData = updateVanguardDayData(event);
-  let token0DayData = updateTokenDayData(token0 as Token, event);
-  let token1DayData = updateTokenDayData(token1 as Token, event);
+  // // update day entities
+  // let pairDayData = updatePairDayData(event);
+  // let pairHourData = updatePairHourData(event);
+  // let vanguardDayData = updateVanguardDayData(event);
+  // let token0DayData = updateTokenDayData(token0 as Token, event);
+  // let token1DayData = updateTokenDayData(token1 as Token, event);
 
-  // swap specific updating
-  vanguardDayData.dailyVolumeUSD = vanguardDayData.dailyVolumeUSD.plus(trackedAmountUSD);
-  vanguardDayData.dailyVolumeETH = vanguardDayData.dailyVolumeETH.plus(trackedAmountETH);
-  vanguardDayData.dailyVolumeUntracked = vanguardDayData.dailyVolumeUntracked.plus(derivedAmountUSD);
-  vanguardDayData.save();
+  // // swap specific updating
+  // vanguardDayData.dailyVolumeUSD = vanguardDayData.dailyVolumeUSD.plus(trackedAmountUSD);
+  // vanguardDayData.dailyVolumeETH = vanguardDayData.dailyVolumeETH.plus(trackedAmountETH);
+  // vanguardDayData.dailyVolumeUntracked = vanguardDayData.dailyVolumeUntracked.plus(derivedAmountUSD);
+  // vanguardDayData.save();
 
-  // swap specific updating for pair
-  pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(amount0Total);
-  pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(amount1Total);
-  pairDayData.dailyVolumeUSD = pairDayData.dailyVolumeUSD.plus(trackedAmountUSD);
-  pairDayData.save();
+  // // swap specific updating for pair
+  // pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(amount0Total);
+  // pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(amount1Total);
+  // pairDayData.dailyVolumeUSD = pairDayData.dailyVolumeUSD.plus(trackedAmountUSD);
+  // pairDayData.save();
 
-  // update hourly pair data
-  pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(amount0Total);
-  pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(amount1Total);
-  pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(trackedAmountUSD);
-  pairHourData.save();
+  // // update hourly pair data
+  // pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(amount0Total);
+  // pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(amount1Total);
+  // pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(trackedAmountUSD);
+  // pairHourData.save();
 
-  // swap specific updating for token0
-  token0DayData.dailyVolumeToken = token0DayData.dailyVolumeToken.plus(amount0Total);
-  token0DayData.dailyVolumeETH = token0DayData.dailyVolumeETH.plus(
-    amount0Total.times(token0.derivedETH as BigDecimal)
-  );
-  token0DayData.dailyVolumeUSD = token0DayData.dailyVolumeUSD.plus(
-    amount0Total.times(token0.derivedETH as BigDecimal).times(bundleEthPrice)
-  );
-  token0DayData.save();
+  // // swap specific updating for token0
+  // token0DayData.dailyVolumeToken = token0DayData.dailyVolumeToken.plus(amount0Total);
+  // token0DayData.dailyVolumeETH = token0DayData.dailyVolumeETH.plus(
+  //   amount0Total.times(token0.derivedETH as BigDecimal)
+  // );
+  // token0DayData.dailyVolumeUSD = token0DayData.dailyVolumeUSD.plus(
+  //   amount0Total.times(token0.derivedETH as BigDecimal).times(bundleEthPrice)
+  // );
+  // token0DayData.save();
 
-  // swap specific updating
-  token1DayData.dailyVolumeToken = token1DayData.dailyVolumeToken.plus(amount1Total);
-  token1DayData.dailyVolumeETH = token1DayData.dailyVolumeETH.plus(
-    amount1Total.times(token1.derivedETH as BigDecimal)
-  );
-  token1DayData.dailyVolumeUSD = token1DayData.dailyVolumeUSD.plus(
-    amount1Total.times(token1.derivedETH as BigDecimal).times(bundleEthPrice)
-  );
-  token1DayData.save();
+  // // swap specific updating
+  // token1DayData.dailyVolumeToken = token1DayData.dailyVolumeToken.plus(amount1Total);
+  // token1DayData.dailyVolumeETH = token1DayData.dailyVolumeETH.plus(
+  //   amount1Total.times(token1.derivedETH as BigDecimal)
+  // );
+  // token1DayData.dailyVolumeUSD = token1DayData.dailyVolumeUSD.plus(
+  //   amount1Total.times(token1.derivedETH as BigDecimal).times(bundleEthPrice)
+  // );
+  // token1DayData.save();
 }

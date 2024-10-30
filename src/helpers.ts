@@ -3,7 +3,7 @@ import { Address, BigDecimal, BigInt, Bytes, store } from "@graphprotocol/graph-
 import { ERC20 } from "../generated/ClassicFactory/ERC20";
 import { ERC20NameBytes } from "../generated/ClassicFactory/ERC20NameBytes";
 import { ERC20SymbolBytes } from "../generated/ClassicFactory/ERC20SymbolBytes";
-import { PortfolioHistory, User, UserPosition } from "../generated/schema";
+import { Factory, PortfolioHistory, User, UserPosition } from "../generated/schema";
 import { ClassicFactory as FactoryContract } from "../generated/templates/ClassicPool/ClassicFactory";
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
@@ -196,6 +196,30 @@ export function createUser(address: Address): void {
   if (user === null) {
     user = new User(address.toHexString());
     user.usdSwapped = ZERO_BD;
+    user.txCount = ZERO_BI;
     user.save();
+
+    let factory = Factory.load(FACTORY_ADDRESS);
+
+    if (factory) {
+      factory.userCount = factory.userCount.plus(ONE_BI);
+      factory.save();
+    }
+  }
+}
+
+export function updateUserUSDSwapped(user: Address, usdValue: BigDecimal): void {
+  let userEntity = User.load(user.toHexString());
+  if (userEntity) {
+    userEntity.usdSwapped = userEntity.usdSwapped.plus(usdValue);
+    userEntity.save();
+  }
+}
+
+export function increaseUserTxCount(user: Address): void {
+  let userEntity = User.load(user.toHexString());
+  if (userEntity) {
+    userEntity.txCount = userEntity.txCount.plus(ONE_BI);
+    userEntity.save();
   }
 }
