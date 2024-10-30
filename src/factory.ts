@@ -27,6 +27,7 @@ export function handlePoolCreated(event: PoolCreated): void {
     factory.untrackedVolumeUSD = ZERO_BD;
     factory.totalLiquidityUSD = ZERO_BD;
     factory.txCount = ZERO_BI;
+    factory.userCount = ZERO_BI;
 
     // create new bundle
     let bundle = new Bundle("1");

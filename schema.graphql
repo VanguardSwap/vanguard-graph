@@ -18,6 +18,7 @@ type Factory @entity {
 
   # transactions
   txCount: BigInt!
+  userCount: BigInt!
 }
 
 type Token @entity {
@@ -121,6 +122,7 @@ type Pool @entity {
 
 type User @entity {
   id: ID!
+  txCount: BigInt!
   usdSwapped: BigDecimal!
 }
 
