@@ -62,6 +62,13 @@ type UserPosition @entity {
   liquidity: BigDecimal!
 }
 
+type UserTokenBalance @entity {
+  id: ID! # user address + token address
+  user: User!
+  token: Token!
+  balance: BigDecimal!
+}
+
 enum TransactionType {
   Deposit
   Withdraw

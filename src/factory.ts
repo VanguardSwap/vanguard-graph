@@ -13,7 +13,11 @@ import {
 } from "./helpers";
 
 import { PoolCreated } from "../generated/ClassicFactory/ClassicFactory";
-import { ClassicPool as PoolTemplate } from "../generated/templates";
+
+import { 
+  ClassicPool as PoolTemplate,
+  ERC20 as TokenTemplate
+} from "../generated/templates";
 
 export function handlePoolCreated(event: PoolCreated): void {
   // load factory (create if first exchange)
@@ -66,6 +70,9 @@ export function handlePoolCreated(event: PoolCreated): void {
     token0.totalLiquidity = ZERO_BD;
     // token0.allPairs = []
     token0.txCount = ZERO_BI;
+
+    // create the tracked contract based on the template
+    TokenTemplate.create(token0Address);
   }
 
   // fetch info if null
@@ -88,6 +95,9 @@ export function handlePoolCreated(event: PoolCreated): void {
     token1.totalLiquidity = ZERO_BD;
     // token1.allPairs = []
     token1.txCount = ZERO_BI;
+
+    // create the tracked contract based on the template
+    TokenTemplate.create(token1Address);
   }
 
   let pair = new Pool(event.params.pool.toHexString()) as Pool;
