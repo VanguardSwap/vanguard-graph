@@ -7,7 +7,7 @@ import { Factory, PortfolioHistory, User, UserPosition } from "../generated/sche
 import { ClassicFactory as FactoryContract } from "../generated/templates/ClassicPool/ClassicFactory";
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-export const FACTORY_ADDRESS = "0x16d6d5627a6d4da55ce81b624ad31e42e163b9c4";
+export const FACTORY_ADDRESS = "0xb961ae59bb6e1b39b3ddc1602402f35fb4fd96ad";
 
 export let ZERO_BI = BigInt.fromI32(0);
 export let ONE_BI = BigInt.fromI32(1);
