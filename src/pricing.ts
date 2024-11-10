@@ -7,9 +7,9 @@ import {
   ONE_BD, UNTRACKED_PAIRS, ZERO_BD
 } from "./helpers";
 
-const WETH_ADDRESS = "0x968b9a5603ddeb2a78aa08182bc44ece1d9e5bf0";
-const USDC_WETH_PAIR = "0xe2e8a2b05f050498a951b006bd2863ebbbc5b587";
-const USDT_WETH_PAIR = "0x69dbefd8e8552520ff196650ffb10119d0d183f6";
+const WETH_ADDRESS = "0x1c13b2b65d55df06ff43528e736db2f8e372e692";
+const USDC_WETH_PAIR = "0x3140888604639e391ef2621cee370f7809f16e77";
+const USDT_WETH_PAIR = "0xd236eea12ee471e918779e09adb71f121903a141";
 
 export function getEthPriceInUSD(): BigDecimal {
   // fetch eth prices for each stablecoin
@@ -18,13 +18,13 @@ export function getEthPriceInUSD(): BigDecimal {
 
   // all 2 have been created
   if (usdcPair !== null && usdtPair !== null) {
-    let totalLiquidityETH = usdcPair.reserve1.plus(usdtPair.reserve1);
+    let totalLiquidityETH = usdcPair.reserve0.plus(usdtPair.reserve1);
 
-    let usdcWeight = usdcPair.reserve1.div(totalLiquidityETH);
-    let usdtWeight = usdtPair.reserve0.div(totalLiquidityETH);
+    let usdcWeight = usdcPair.reserve0.div(totalLiquidityETH);
+    let usdtWeight = usdtPair.reserve1.div(totalLiquidityETH);
 
-    return usdcPair.token0Price.times(usdcWeight)
-      .plus(usdtPair.token1Price.times(usdtWeight));
+    return usdcPair.token1Price.times(usdcWeight)
+      .plus(usdtPair.token0Price.times(usdtWeight));
     // dai and USDC have been created
   } else if (usdcPair !== null) {
     return usdcPair.token0Price;
@@ -35,11 +35,11 @@ export function getEthPriceInUSD(): BigDecimal {
 
 // token where amounts should contribute to tracked volume and liquidity
 let WHITELIST: string[] = [
-  "0x968b9a5603ddeb2a78aa08182bc44ece1d9e5bf0", // WETH
-  "0x700722d24f9256be288f56449e8ab1d27c4a70ca", // USDC
-  "0x8812d810ea7cc4e1c3fb45cef19d6a7ecbf2d85d", // USDT
-  "0x153b112138c6de2cad16d66b4b6448b7b88caef3", // WBTC
-  "0x6e990040fd9b06f98efb62a147201696941680b5", // WIP
+  "0x1c13b2b65d55df06ff43528e736db2f8e372e692", // WETH
+  "0x40fca9cb1ab15ed9b5bda19a52ac00a78ae08e1d", // USDC
+  "0x02f75bdbb4732cc6419ac15eebee6bcee66e826f", // USDT
+  "0x656afb1968bc39cf3937f68cc6089f10cf47c1f7", // WBTC
+  "0xe8cabf9d1ffb6ce23cf0a86641849543ec7bd7d5", // WIP
 ];
 
 // minimum liquidity required to count towards tracked volume for pairs with small # of Lps
